@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GHOSTSENSE-X // CHIRP-HYBRID — Sakarya 2026 Enkaz Arama &amp; Akustik Haberleşme</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <script type="module" crossorigin src="./assets/index-CwLIFWoh.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-DF7DVMDd.css">
+</head>
+<body>
+  <div class="shell">
+    <!-- Top Command Bar -->
+    <header class="topbar">
+      <div class="brand">
+        <span class="beacon"></span>
+        <div>
+          <h1>GHOSTSENSE-X <span class="slash">//</span> CHIRP-HYBRID</h1>
+          <p class="subtitle">HİBRİT (RF UZLAŞI + AKUSTİK CSS/DOPPLER) ENKAZ ALTI KONUMLAMA &amp; HABERLEŞME</p>
+        </div>
+      </div>
+
+      <nav class="nav-tabs">
+        <button class="tab-btn active" data-tab="tab-map">1. 3B GHOSTMAP &amp; UZLAŞI</button>
+        <button class="tab-btn" data-tab="tab-chirp">2. AKUSTİK LORA (CHIRPSOS)</button>
+        <button class="tab-btn" data-tab="tab-sonar">3. 18 kHz DOPPLER SONAR</button>
+        <button class="tab-btn" data-tab="tab-evidence">4. BİLİMSEL KANIT (167 DENEY)</button>
+        <button class="tab-btn" data-tab="tab-slides">5. SUNUM</button>
+        <button class="tab-btn" data-tab="tab-cinema">6. CANLI DEPREM SENARYOSU</button>
+      </nav>
+
+      <div class="top-actions">
+        <button id="btn-mic" class="btn btn-primary">MİKROFONU DİNLE</button>
+        <button id="btn-noise" class="btn btn-danger-outline">ENKAZ GÜRÜLTÜSÜ: KAPALI</button>
+        <button id="btn-projector" class="btn btn-violet">PROJEKTÖR MODU</button>
+      </div>
+    </header>
+
+    <!-- TAB 1: 3D GHOSTMAP & Acoustic Bridge -->
+    <section id="tab-map" class="tab-pane active">
+      <div class="grid-main">
+        <div class="panel">
+          <div class="panel-head">
+            <span class="tag cyan">3B HOLOGRAFİK ENKAZ ALANI (14×9) &amp; VAL-0022 UZLAŞI KAPISI</span>
+            <div class="inline-controls">
+              <button id="btn-toggle-3d" class="btn btn-sm btn-active">3B GÖRÜNÜM</button>
+              <button id="btn-map-reset" class="btn btn-sm">HARİTAYI SIFIRLA</button>
+            </div>
+          </div>
+
+          <canvas id="ghostmap-canvas" width="840" height="470"></canvas>
+
+          <div class="toolbar-row">
+            <label class="field-inline">
+              <span>Senaryo:</span>
+              <select id="sim-case">
+                <option value="matched">matched (Gerçek Hedef)</option>
+                <option value="clutter">clutter (Sahte Yankı Gürültüsü)</option>
+                <option value="range_bias">range_bias (Sabit Menzil Sapması)</option>
+                <option value="mechanical">mechanical (Mekanik Kaynak)</option>
+                <option value="empty">empty (Boş Enkaz)</option>
+              </select>
+            </label>
+            <label class="field-inline">
+              <input id="chk-consensus" type="checkbox" checked />
+              <span>VAL-0022 Çoklu-Görüş Uzlaşısı</span>
+            </label>
+            <button id="btn-map-step" class="btn btn-sm btn-cyan">AKILLI TARAMA ADIMI</button>
+            <button id="btn-map-auto" class="btn btn-sm btn-gold">12-ADIM OTO TARAMA</button>
+          </div>
+        </div>
+
+        <aside class="side-col">
+          <!-- Consensus Telemetry -->
+          <div class="panel">
+            <div class="panel-head">
+              <span class="tag gold">KARAR &amp; VAL-0022 UZLAŞI TELEMETRİSİ</span>
+              <span id="map-status-badge" class="badge warn">ABSTAIN</span>
+            </div>
+
+            <div class="kpi-grid">
+              <div class="kpi">
+                <span>KARAR NEDENİ</span>
+                <strong id="kpi-reason" style="font-size:0.74rem;color:#ffbe0b;">NO_VALID_EVIDENCE</strong>
+              </div>
+              <div class="kpi">
+                <span>BÖLGE OLASILIĞI</span>
+                <strong id="kpi-region-mass" style="color:#00f0ff;">0.0%</strong>
+              </div>
+              <div class="kpi">
+                <span>DESTEKLEYEN YANKI</span>
+                <strong id="kpi-support">0 / 0</strong>
+              </div>
+              <div class="kpi">
+                <span>FARKLI AÇI &amp; UYUM</span>
+                <strong id="kpi-views">0 açı (%0)</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Acoustic -> 3D GHOSTMAP Bridge -->
+          <div class="panel">
+            <div class="panel-head">
+              <span class="tag violet">CANLI AKUSTİK → 3B HARİTA KÖPRÜSÜ</span>
+            </div>
+            <p class="hint-sm">
+              Enkaz çevresindeki tarama noktasını seçin (haritada da tıklayabilirsiniz) ve akustik mesafe ölçümünü 3B olasılık haritasına enjekte edin:
+            </p>
+
+            <div class="bridge-form">
+              <label class="field">
+                <span>TARAMA NOKTASI (ÇEVRE)</span>
+                <select id="bridge-viewpoint"></select>
+              </label>
+              <label class="field">
+                <span>ÖLÇÜLEN AKUSTİK MESAFE (m)</span>
+                <input id="bridge-dist" type="number" step="0.1" min="0.5" max="19" value="5.2" />
+              </label>
+            </div>
+
+            <div class="btn-col">
+              <button id="btn-bridge-inject" class="btn btn-gold">HARİTAYA AKUSTİK GÖZLEM ENJEKTE ET</button>
+              <button id="btn-bridge-3pt" class="btn btn-cyan">4-NOKTALI AKUSTİK ÜÇGENLEME DEMOSU (K-04, D-10, G-16, B-22)</button>
+              <button id="btn-bridge-clutter" class="btn btn-danger-outline">ÇELİŞKİLİ YANKI TESTİ (ABSTAIN KONTROLÜ)</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- TAB 2: Live Acoustic LoRa (ChirpSOS) -->
+    <section id="tab-chirp" class="tab-pane">
+      <div class="grid-main">
+        <div class="col">
+          <div class="panel">
+            <div class="panel-head">
+              <span class="tag gold">GÖNDERİCİ (ENKAZ ALTI TELEFONU / BİKINI)</span>
+              <span class="mono-badge">16-ARY CSS + CRC-16</span>
+            </div>
+
+            <div class="bridge-form">
+              <label class="field">
+                <span>KİŞİ SAYISI</span>
+                <input id="tx-survivors" type="number" min="1" max="99" value="2" />
+              </label>
+              <label class="field">
+                <span>DURUM</span>
+                <select id="tx-status">
+                  <option value="0">Bilinç Açık</option>
+                  <option value="1">Yaralı Var</option>
+                  <option value="2">Su / Hava Kritik</option>
+                  <option value="3">Enkaz Altı Stabil</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>BATARYA (%)</span>
+                <input id="tx-battery" type="number" min="1" max="100" value="38" />
+              </label>
+              <label class="field">
+                <span>KONUM KODU (4 HARF)</span>
+                <input id="tx-note" type="text" maxlength="4" value="KAT2" />
+              </label>
+            </div>
+
+            <div class="inline-controls">
+              <select id="band-select" class="select-sm">
+                <option value="RUBBLE">Enkaz Bandı (2.0 – 5.2 kHz)</option>
+                <option value="HIGH">Yüksek Frekans (11.5 – 14.7 kHz)</option>
+              </select>
+              <button id="btn-send-speaker" class="btn btn-gold" style="flex:1;">SOS CHIRP GÖNDER (HOPARLÖR)</button>
+            </div>
+
+            <div class="divider"></div>
+            <div class="inline-controls">
+              <span class="mono-dim">Kanal SNR: <strong id="val-snr" style="color:#00f0ff;">-6 dB</strong></span>
+              <input id="sim-snr" type="range" min="-9" max="10" step="3" value="-6" style="flex:1;" />
+              <button id="btn-sim-channel" class="btn btn-cyan">GÜRÜLTÜLÜ KANAL TESTİ</button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <span class="tag violet">AKUSTİK ToF MESAFE ÖLÇER (343 m/s)</span>
+              <span class="mono-badge" id="tof-readout">-- m</span>
+            </div>
+            <div class="inline-controls" style="margin-bottom:10px;">
+              <span class="mono-dim">Ses Gecikmesi: <strong id="val-latency">45 ms</strong></span>
+              <input id="cal-latency" type="range" min="0" max="150" step="5" value="45" style="flex:1;" />
+            </div>
+            <div class="inline-controls">
+              <button id="btn-send-ping" class="btn btn-violet" style="flex:1;">MESAFE PİNGİ GÖNDER</button>
+              <button id="btn-auto-reply" class="btn" style="flex:1;">OTO YANITLAYICI: KAPALI</button>
+              <button id="btn-push-to-map" class="btn btn-gold">3B HARİTAYA AKTAR</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="panel">
+            <div class="panel-head">
+              <span class="tag cyan">CANLI FFT SPEKTROGRAM &amp; I/Q EŞLEŞMİŞ FİLTRE</span>
+              <span id="crc-badge" class="badge">PAKET BEKLENİYOR</span>
+            </div>
+            <canvas id="waterfall-canvas" width="700" height="165"></canvas>
+            <canvas id="corr-canvas" width="700" height="100" style="margin-top:8px;"></canvas>
+            <div id="latest-packet-card" class="packet-box">
+              Henüz SOS paketi çözülmedi. Mikrofonu açıp hoparlörden yayınlayın veya Gürültülü Kanal Testini çalıştırın.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: 18 kHz Active Acoustic Doppler Sonar -->
+    <section id="tab-sonar" class="tab-pane">
+      <div class="grid-main">
+        <div class="panel">
+          <div class="panel-head">
+            <span class="tag cyan">18.0 kHz AKTİF AKUSTİK DOPPLER HAREKET SONARI (GHOSTSONAR)</span>
+            <span id="sonar-badge" class="badge">PASİF</span>
+          </div>
+          <canvas id="doppler-canvas" width="840" height="300"></canvas>
+          <div class="toolbar-row">
+            <button id="btn-sonar-toggle" class="btn btn-cyan">18 kHz DOPPLER SONARI BAŞLAT</button>
+            <button id="btn-sonar-cal" class="btn btn-gold">KALİBRE ET (SESSİZ ORTAM)</button>
+            <span class="mono-dim" style="margin-left:auto;">Eşik: yan bant enerjisi > %25</span>
+          </div>
+        </div>
+
+        <aside class="side-col">
+          <div class="panel">
+            <div class="panel-head">
+              <span class="tag gold">YAKIN MESAFE HAREKET TELEMETRİSİ</span>
+            </div>
+            <div class="kpi-grid">
+              <div class="kpi">
+                <span>HAREKET SKORU</span>
+                <strong id="sonar-score" style="color:#00f0ff;">0%</strong>
+              </div>
+              <div class="kpi">
+                <span>DURUM</span>
+                <strong id="sonar-state" style="font-size:0.78rem;">BEKLENİYOR</strong>
+              </div>
+              <div class="kpi">
+                <span>YAKLAŞMA (+Δf)</span>
+                <strong id="sonar-approach" style="color:#00f59b;">0</strong>
+              </div>
+              <div class="kpi">
+                <span>UZAKLAŞMA (-Δf)</span>
+                <strong id="sonar-recede" style="color:#a855f7;">0</strong>
+              </div>
+            </div>
+            <div class="divider"></div>
+            <p class="hint-sm">
+              <strong>Bilimsel Dürüstlük Sınırı:</strong> 18 kHz Doppler sonarı kalın betonun arkasını görmez; enkaz kovuğu, açık kapı veya <strong>0.3 – 2.0 m yakın mesafe</strong> içinde telefonsuz kişinin el/göğüs hareketini yansıyan sesin frekans kaymasından (Doppler) algılar. Stantta elinizi hoparlör/mikrofon önünde sallayarak jüriye canlı gösterebilirsiniz.
+            </p>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- TAB 4: Scientific Evidence Center (153 Experiments + Acoustic Benchmarks) -->
+    <section id="tab-evidence" class="tab-pane">
+      <div class="evidence-grid">
+        <div class="panel">
+          <div class="panel-head">
+            <span class="tag cyan">1. GHOSTMAP VAL-0022 ÇOKLU-GÖRÜŞ UZLAŞI KANITI</span>
+            <span class="badge ok">PASS_SYNTHETIC_GATE</span>
+          </div>
+          <p class="hint-sm">Dondurulmuş 13000–13019 kontrol seed'lerinde sıfır doğru hedef kaybıyla yanlış alarm bastırma:</p>
+          <table class="data-table">
+            <thead>
+              <tr><th>Senaryo</th><th>Nominal Bayesyen</th><th>VAL-0022 Uzlaşı</th><th>İyileşme</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>matched (Doğru Hedef)</td><td>18 / 20</td><td class="ok-txt">18 / 20</td><td>0 kayıp</td></tr>
+              <tr><td>clutter (Sahte Yankı)</td><td>8 / 20 yanlış</td><td class="ok-txt">1 / 20 yanlış</td><td>%87.5 azalma</td></tr>
+              <tr><td>range_bias (Sapma)</td><td>6 / 20 yanlış</td><td class="ok-txt">0 / 20 yanlış</td><td>%100 azalma</td></tr>
+              <tr><td>empty / dropout / fault</td><td>0 / 20 yanlış</td><td class="ok-txt">0 / 20 yanlış</td><td>Güvenli ABSTAIN</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <span class="tag gold">2. CHIRPSOS AKUSTİK CSS &amp; ToF DOĞRULAMASI</span>
+            <span class="badge ok">-9 dB SNR %100</span>
+          </div>
+          <p class="hint-sm">2 enkaz yankısı (16 ms, 41 ms) + beyaz Gauss gürültüsü altında 120 paket &amp; mesafe testi:</p>
+          <table class="data-table">
+            <thead>
+              <tr><th>Test Koşulu</th><th>Çözülen Paket / Ölçüm</th><th>Pik Oranı / Hata</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>SNR +10 dB / +3 dB / 0 dB</td><td class="ok-txt">60 / 60 (%100.0)</td><td>26.2x – 38.3x</td></tr>
+              <tr><td>SNR -3 dB / -6 dB</td><td class="ok-txt">40 / 40 (%100.0)</td><td>19.0x – 26.7x</td></tr>
+              <tr><td>SNR -9 dB (Gürültü ~8× sinyal)</td><td class="ok-txt">20 / 20 (%100.0)</td><td>14.82x</td></tr>
+              <tr><td>Akustik ToF (1.50 / 3.20 / 6.80 m)</td><td class="ok-txt">1.501 / 3.205 / 6.796 m</td><td>Maks. hata: 0.49 cm</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <span class="tag violet">3. GHOSTSENSE-X AGG-0025 WI-FI CSI MATRİSİ (153 DENEY)</span>
+            <span class="mono-badge">Wallhack1.8k • Forbes • CSI-HAR</span>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr><th>Kayma Ekseni (Shift Axis)</th><th>Ham Veri F1</th><th>En İyi Ön İşleme F1</th><th>Bulgu</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Kaynak Gün Kayması (Day)</td><td>0.2819</td><td class="ok-txt">0.5181 (Bi-Axis Log)</td><td>Kazanç telafisi</td></tr>
+              <tr><td>Görülmemiş Oda (Ussenova R2)</td><td>0.6203</td><td class="ok-txt">0.8257 (Packet-RMS)</td><td>Oda bazlı sabitlik</td></tr>
+              <tr><td>Görülmemiş Anten (BQ → PIFA)</td><td>0.3268</td><td class="ok-txt">0.6554 (Temporal Z-Score)</td><td>2× transfer artışı</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <span class="tag cyan">4. GHOSTVITAL (400 KONTROL) &amp; HİBRİT GEREKÇESİ</span>
+            <span class="mono-badge">VAL-0007 / VAL-0008</span>
+          </div>
+          <p class="hint-sm">
+            400 sentetik 60 sn'lik mikro-hareket kontrolünde `0.0048 Hz` frekans doğruluğu ve `0/320` gürültü yanlış alarmı elde edildi; ancak sabit periyodik mekanik kaynaklarda (`40/40`) RF sinyali insanı makineden ayıramadığı için <strong>Akustik CSS + Doppler Sonar</strong> doğrulama katmanı geliştirildi.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: Interactive Jury Presentation Deck -->
+    <section id="tab-slides" class="tab-pane">
+      <div class="panel presentation-shell">
+        <div class="slide-controls-bar">
+          <div class="inline-controls">
+            <button id="btn-slide-prev" class="btn btn-cyan">← ÖNCEKİ SLAYT</button>
+            <button id="btn-slide-next" class="btn btn-gold">SONRAKİ SLAYT →</button>
+            <button id="btn-slide-notes" class="btn">KONUŞMACI NOTU: AÇIK</button>
+          </div>
+          <div id="slide-dots" class="slide-dots"></div>
+          <span class="mono-dim">Klavye: ← / → ok tuşlarıyla geçiş yapabilirsiniz</span>
+        </div>
+
+        <div id="slide-viewport"></div>
+      </div>
+    </section>
+
+    <!-- TAB 6: Live Earthquake-to-Rescue Product Cinema -->
+    <section id="tab-cinema" class="tab-pane">
+      <div class="grid-main">
+        <div class="panel">
+          <div class="panel-head">
+            <span class="tag gold">CANLI DEPREM VE ENKAZ KURTARMA SENARYOSU (TANITIM MODU)</span>
+            <span id="cinema-stage-badge" class="badge">AŞAMA 1 / 6</span>
+          </div>
+
+          <canvas id="cinema-canvas" width="880" height="450"></canvas>
+
+          <div id="cinema-caption-box" class="cinema-caption">
+            <strong id="cinema-stage-title">1. NORMAL DURUM (DEPREM ÖNCESİ)</strong>
+            <p id="cinema-stage-desc">Senaryoyu izlemek için aşağıdan "SENARYOYU OYNAT" düğmesine basın.</p>
+          </div>
+
+          <div class="toolbar-row">
+            <button id="btn-cinema-play" class="btn btn-gold">▶ SENARYOYU OYNAT</button>
+            <button id="btn-cinema-reset" class="btn">↺ BAŞA SAR</button>
+            <button id="btn-cinema-sound" class="btn btn-cyan active">SES EFEKTLERİ: AÇIK</button>
+            <div class="stage-pills" id="cinema-stage-pills">
+              <button class="stage-pill active" data-stage="1">1</button>
+              <button class="stage-pill" data-stage="2">2</button>
+              <button class="stage-pill" data-stage="3">3</button>
+              <button class="stage-pill" data-stage="4">4</button>
+              <button class="stage-pill" data-stage="5">5</button>
+              <button class="stage-pill" data-stage="6">6</button>
+            </div>
+          </div>
+        </div>
+
+        <aside class="side-col">
+          <div class="panel">
+            <div class="panel-head">
+              <span class="tag cyan">SENARYO SIRASINDA SİSTEME YANSIYAN GERÇEK ÇIKTILAR</span>
+            </div>
+            <p class="hint-sm">
+              Bu ekran yalnızca görsel bir animasyon değildir; 4. aşamada gerçek <strong>ChirpModem (-6 dB)</strong>, 5. aşamada ise gerçek <strong>GHOSTMAP VAL-0022</strong> motoru çalıştırılır:
+            </p>
+
+            <div class="kpi-grid">
+              <div class="kpi">
+                <span>ŞEBEKE / WI-FI</span>
+                <strong id="cin-net" style="color:#00f59b;">AKTİF</strong>
+              </div>
+              <div class="kpi">
+                <span>AKUSTİK CSS (-6 dB)</span>
+                <strong id="cin-dsp" style="color:#8496ae;">BEKLEMEDE</strong>
+              </div>
+              <div class="kpi">
+                <span>VAL-0022 UZLAŞI</span>
+                <strong id="cin-map" style="color:#8496ae;">BEKLEMEDE</strong>
+              </div>
+              <div class="kpi">
+                <span>18 kHz DOPPLER</span>
+                <strong id="cin-doppler" style="color:#8496ae;">BEKLEMEDE</strong>
+              </div>
+            </div>
+
+            <div id="cin-live-output" class="packet-box" style="margin-top:12px;">
+              Senaryo başlatıldığında çözülen SOS paketi ve kilitlenen hücre koordinatları burada canlı belirecektir.
+            </div>
+
+            <p class="mono-dim" style="margin-top:10px;font-size:0.64rem;">
+              Not (Madde 7 Uyumlu): Sergi alanında açık ateş veya fiziksel yıkım olmadan, güvenli bilgisayar simülasyonu üzerinde gerçek DSP ve olasılık motorlarımız çalıştırılarak gösterilir.
+            </p>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <footer class="statusbar">
+      <span id="system-log">GHOSTSENSE-X // CHIRP-HYBRID hazır — Orijinal GHOSTSENSE-X deposu korundu.</span>
+    </footer>
+  </div>
+
+</body>
+</html>
